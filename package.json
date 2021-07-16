@@ -1,0 +1,26 @@
+{
+  "name": "solitaire",
+  "version": "1.0.0",
+  "description": "The traditional card game solitaire.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/catarina-mcs/solitaire.git"
+  },
+  "keywords": [
+    "solitaire",
+    "cards"
+  ],
+  "author": "Catarina Santos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/catarina-mcs/solitaire/issues"
+  },
+  "homepage": "https://github.com/catarina-mcs/solitaire#readme",
+  "devDependencies": {
+    "eslint": "^7.30.0"
+  }
+}
