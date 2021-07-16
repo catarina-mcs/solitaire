@@ -1,0 +1,38 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(45deg, #5c934c 25%, #4c7740 25%, #4c7740 50%, #5c934c 50%, #5c934c 75%, #4c7740 75%, #4c7740 100%);
+    background-size: 14.14px 14.14px;
+}
+
+.game-area {
+    max-width: 850px;
+    margin: 3em auto 0;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-column-gap: 1em;
+    grid-row-gap: 3em;
+}
+
+.placeholder {
+    background-color: #f1f0f06b;
+    border-radius: 5px;
+    width: 100px;
+    height: 150px;
+}
+
+.waste-pile {
+    grid-column: 6 / 7;
+}
+
+.stock-pile {
+    grid-column: 7 / 8;
+}
+
+.tableau-pile {
+    grid-row: 2 / 3;
+}
