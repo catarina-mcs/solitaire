@@ -40,7 +40,11 @@ body {
 }
 
 .card {
-    position: absolute;
     border: 1px solid #333333;
     border-radius: 5px;
+    position: absolute;
+}
+
+.card-active {
+    border: 1px solid yellow;
 }
