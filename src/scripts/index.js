@@ -3,13 +3,14 @@ const wasteDisplay = document.querySelector('.waste-pile');
 const stockDisplay = document.querySelector('.stock-pile');
 const tableauDisplay = Array.from(document.getElementsByClassName('tableau-pile'));
 const placeholders = Array.from(document.getElementsByClassName('placeholder'));
+const btnUndo = document.getElementById('btn-undo');
 let deck = [];
 let foundations = [[],[],[],[]];
 let waste = [];
 let stock = [];
 let tableau = [];
 let isLastTableauPileCard = true;
-let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay;
+let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, lastMove, lastMovedCard, prevCardHidden;
 
 
 function createCards() {
@@ -96,10 +97,11 @@ function updateCardsDisplay() {
         selectedCardDisplay.style.top = '0px';
     }
 
-    if (originPileDisplay.children[cardIndex-1] && originPileDisplay.children[cardIndex-1].classList.contains('hidden')) {
-        originPileDisplay.children[cardIndex-1].classList.remove('hidden');
-        originPileDisplay.children[cardIndex-1].setAttribute('src', originArray[cardIndex-1].imageSrc);
-    }
+    if (originPileDisplay.children[cardIndex - 1] && originPileDisplay.children[cardIndex - 1].classList.contains('hidden')) {
+        originPileDisplay.children[cardIndex - 1].classList.remove('hidden');
+        originPileDisplay.children[cardIndex - 1].setAttribute('src', originArray[cardIndex - 1].imageSrc);
+        prevCardHidden = true;
+    } else prevCardHidden = false;
 }
 
 
@@ -117,6 +119,8 @@ function updateArrays() {
 
 
 function turnStockCard() {
+    lastMove = 'turn stock card';
+
     if (selectedCardDisplay) {
         selectedCardDisplay.classList.remove('card-active');
         selectedCardDisplay = null;
@@ -167,6 +171,8 @@ function moveCard(e) {
         
         if (isMoveValid()) {
             updateArrays();
+            lastMove = 'move card';
+            lastMovedCard = selectedCardDisplay;
             selectedCardDisplay.classList.remove('card-active');
             selectedCardDisplay = null;
             isLastTableauPileCard = true;
@@ -187,7 +193,7 @@ function findSelectedCard() {
         originArray = waste;
         cardIndex = originArray.length - 1;
     } else if (pileIndex >= 6) {
-        originArray = tableau[pileIndex-6];
+        originArray = tableau[pileIndex - 6];
         cardIndex = Array.from(placeholders[pileIndex].children).findIndex(card => card === selectedCardDisplay);
     }
     
@@ -200,7 +206,7 @@ function findDestinationArray() {
 
     if (pileIndex <= 3) destinationArray = foundations[pileIndex];
     else if (pileIndex === 4) destinationArray = waste;
-    else if (pileIndex >= 6) destinationArray = tableau[pileIndex-6];
+    else if (pileIndex >= 6) destinationArray = tableau[pileIndex - 6];
 }
 
 
@@ -222,6 +228,30 @@ function isMoveValid() {
         else if (destinationArray.length === 0 && selectedCard.value === 1) return true;
         else if (destLastCard && selectedCard.suit === destLastCard.suit && selectedCard.value === destLastCard.value + 1) return true;
         else return false;
+    }
+}
+
+
+btnUndo.addEventListener('click', undoLastMove);
+
+function undoLastMove() {
+    if (lastMove === 'turn stock card') {
+        stock.push(waste.pop());
+        wasteDisplay.removeChild(wasteDisplay.children[wasteDisplay.children.length - 1]);
+        if (stock.length === 1) stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
+    } else if (lastMove === 'move card') {
+        originPileDisplay.appendChild(lastMovedCard);
+        originArray.push(destinationArray.pop());
+        if (originPileDisplay.classList.contains('foundations-pile') || originPileDisplay.classList.contains('waste-pile')) {
+            lastMovedCard.style.zIndex = originArray.length;
+            lastMovedCard.style.top = '0px';
+        } else if (originPileDisplay.classList.contains('tableau-pile')) {
+            if (prevCardHidden) {
+                originPileDisplay.children[cardIndex - 1].classList.add('hidden');
+                originPileDisplay.children[cardIndex - 1].setAttribute('src', './images/card-back.png');
+            }
+            alignTableauCards(originPileDisplay);
+        }
     }
 }
 
