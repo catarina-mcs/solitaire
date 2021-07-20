@@ -49,3 +49,9 @@ body {
 .card-active {
     border: 1px solid yellow;
 }
+
+.buttons {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+}

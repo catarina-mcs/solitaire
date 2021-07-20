@@ -6,18 +6,45 @@ const placeholders = Array.from(document.getElementsByClassName('placeholder'));
 const hiddenCards = document.getElementsByClassName('hidden');
 const btnUndo = document.getElementById('btn-undo');
 const btnPauseStart = document.getElementById('btn-pause-start');
+const btnRestart = document.getElementById('btn-restart');
+const btnNewGame = document.getElementById('btn-new-game');
 let deck = [];
 let foundations = [[],[],[],[]];
 let waste = [];
 let stock = [];
 let tableau = [];
 let isLastTableauPileCard = true;
-let score = 0;
-let moves = 0;
-let seconds = 0;
-let minutes = 0;
-let clock;
+let score, moves, seconds, minutes, clock, thisGameDeck;
 let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
+
+
+btnUndo.addEventListener('click', undoLastMove);
+btnPauseStart.addEventListener('click', pauseStartGame);
+btnRestart.addEventListener('click', restartGame);
+btnNewGame.addEventListener('click', startGame);
+
+function startGame() {
+    score = 0;
+    moves = 0;
+    seconds = 0;
+    minutes = 0;
+    clearInterval(clock);
+    createCards();
+    shuffleCards();
+    distributeCards(deck);
+    displayCards();
+}
+startGame();
+
+function restartGame() {
+    score = 0;
+    moves = 0;
+    seconds = 0;
+    minutes = 0;
+    clearInterval(clock);
+    distributeCards(thisGameDeck);
+    displayCards();
+}
 
 
 function createCards() {
@@ -35,6 +62,7 @@ function createCards() {
     });
 }
 
+
 function shuffleCards() {
     deck.forEach((_, i) => {
         const randomNum = Math.floor(Math.random() * deck.length);
@@ -44,18 +72,27 @@ function shuffleCards() {
         deck[randomNum] = deck[i];
         deck[i] = temp;
     });
+
+    thisGameDeck = deck.map(card => card);
 }
 
-function distributeCards() {
+
+function distributeCards(arr) {
+    foundations = [[],[],[],[]];
+    waste = [];
+    stock = [];
+    tableau = [];
+
     for (let i=0; i < 7; i++) {
-        tableau.push(deck.splice(0, i+1));
+        tableau.push(arr.splice(0, i+1));
     }
         
-    stock = (deck.splice(0, deck.length));
+    stock = (arr.splice(0, arr.length));
     stock.forEach(card => {
         card.position = 'stock';
     });
 }
+
 
 function displayCards() {
     tableau.forEach((pile, i) => {
@@ -129,6 +166,7 @@ function updateArrays() {
 function turnStockCard() {
     lastMove = 'turn stock card';
     moves ++;
+    startClock();
 
     if (selectedCardDisplay) {
         selectedCardDisplay.classList.remove('card-active');
@@ -181,6 +219,7 @@ function moveCard(e) {
             updateArrays();
             updateScore('make move');
             moves ++;
+            startClock();
             lastMove = 'move card';
             lastMovedCard = selectedCardDisplay;
             selectedCardDisplay.classList.remove('card-active');
@@ -247,8 +286,6 @@ function isMoveValid() {
 }
 
 
-btnUndo.addEventListener('click', undoLastMove);
-
 function undoLastMove() {
     if (lastMove === 'turn stock card') {
         stock.push(waste.pop());
@@ -282,6 +319,7 @@ function gameIsWon() {
         console.log('you won the game');
     } else if (hiddenCards.length === 0 && stock.length === 0 && waste.length === 0) automateMoves();
 }
+
 
 function automateMoves() {
     while (!foundations.every(pile => pile.length === 13)) {
@@ -327,16 +365,6 @@ function updateScore(action) {
     }
 }
 
-btnPauseStart.addEventListener('click', pauseStartGame);
-
-clock = setInterval(() => {
-    seconds++;
-    if (seconds === 60) {
-        minutes ++;
-        seconds = 0;
-    }
-    console.log(`${minutes}:${seconds}`);
-}, 1000);
 
 function pauseStartGame() {
     if (btnPauseStart.textContent === 'Pause') {
@@ -364,10 +392,15 @@ function pauseStartGame() {
 }
 
 
-function startGame() {
-    createCards();
-    shuffleCards();
-    distributeCards();
-    displayCards();
+function startClock() {
+    if (moves === 1) {
+        clock = setInterval(() => {
+            seconds++;
+            if (seconds === 60) {
+                minutes ++;
+                seconds = 0;
+            }
+            console.log(`${minutes}:${seconds}`);
+        }, 1000);
+    }
 }
-startGame();
