@@ -5,8 +5,9 @@
 }
 
 body {
-    background: linear-gradient(45deg, #5c934c 25%, #4c7740 25%, #4c7740 50%, #5c934c 50%, #5c934c 75%, #4c7740 75%, #4c7740 100%);
-    background-size: 14.14px 14.14px;
+    /* background: linear-gradient(45deg, #5c934c 25%, #4c7740 25%, #4c7740 50%, #5c934c 50%, #5c934c 75%, #4c7740 75%, #4c7740 100%); */
+    /* background-size: 14.14px 14.14px; */
+    background-color: #333333;
 }
 
 .game-area {

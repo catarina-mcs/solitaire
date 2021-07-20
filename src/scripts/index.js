@@ -3,6 +3,7 @@ const wasteDisplay = document.querySelector('.waste-pile');
 const stockDisplay = document.querySelector('.stock-pile');
 const tableauDisplay = Array.from(document.getElementsByClassName('tableau-pile'));
 const placeholders = Array.from(document.getElementsByClassName('placeholder'));
+const hiddenCards = document.getElementsByClassName('hidden');
 const btnUndo = document.getElementById('btn-undo');
 let deck = [];
 let foundations = [[],[],[],[]];
@@ -10,7 +11,7 @@ let waste = [];
 let stock = [];
 let tableau = [];
 let isLastTableauPileCard = true;
-let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, lastMove, lastMovedCard, prevCardHidden;
+let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
 
 
 function createCards() {
@@ -84,8 +85,7 @@ function alignTableauCards(tableauPile) {
 
 function updateCardsDisplay() {
     if (!isLastTableauPileCard) {
-        const totalCards = originPileDisplay.children.length;
-        for (let i = cardIndex; i < totalCards; i++) {
+        for (let i = 0; i < amountMovedCards; i++) {
             destinationPileDisplay.appendChild(originPileDisplay.children[cardIndex]);
         }
     } else destinationPileDisplay.appendChild(selectedCardDisplay);
@@ -110,7 +110,7 @@ function updateArrays() {
         const movedCard = originArray.pop();
         destinationArray.push(movedCard);
     } else if (destinationPileDisplay.classList.contains('tableau-pile')) {
-        const amountMovedCards = originArray.length - cardIndex;
+        amountMovedCards = originArray.length - cardIndex;
         const movedCards = originArray.splice(cardIndex, amountMovedCards);
         destinationArray.push(...movedCards);
     }
@@ -175,9 +175,14 @@ function moveCard(e) {
             lastMovedCard = selectedCardDisplay;
             selectedCardDisplay.classList.remove('card-active');
             selectedCardDisplay = null;
-            isLastTableauPileCard = true;
-            wasteDisplay.addEventListener('click', moveCard);
-            stockDisplay.addEventListener('click', turnStockCard);
+            gameIsWon();
+        } else if (e.target.classList.contains('card') && !e.target.classList.contains('hidden')) {
+            selectedCardDisplay.classList.remove('card-active');
+            selectedCardDisplay = e.target;
+            selectedCardDisplay.classList.add('card-active');
+            originPileDisplay = e.target.parentNode;
+            findSelectedCard();
+            foundationsDisplay.forEach(pile => pile.addEventListener('click', moveCard));
         } else console.log('move not valid');
     }
 }
@@ -218,6 +223,7 @@ function isMoveValid() {
         originPileDisplay.classList.contains('tableau-pile') && 
         selectedCardDisplay !== originPileDisplay.children[originLastCardIndex]
     ) isLastTableauPileCard = false;
+    else isLastTableauPileCard = true;
 
     if (destinationPileDisplay.classList.contains('tableau-pile')) {
         if (destinationArray.length === 0 && selectedCard.value === 13) return true;
@@ -237,21 +243,59 @@ btnUndo.addEventListener('click', undoLastMove);
 function undoLastMove() {
     if (lastMove === 'turn stock card') {
         stock.push(waste.pop());
-        wasteDisplay.removeChild(wasteDisplay.children[wasteDisplay.children.length - 1]);
+        if (wasteDisplay.children.length > 0) wasteDisplay.removeChild(wasteDisplay.children[wasteDisplay.children.length - 1]);
         if (stock.length === 1) stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
     } else if (lastMove === 'move card') {
-        originPileDisplay.appendChild(lastMovedCard);
-        originArray.push(destinationArray.pop());
         if (originPileDisplay.classList.contains('foundations-pile') || originPileDisplay.classList.contains('waste-pile')) {
+            originArray.push(destinationArray.pop());
+            originPileDisplay.appendChild(lastMovedCard);
             lastMovedCard.style.zIndex = originArray.length;
             lastMovedCard.style.top = '0px';
         } else if (originPileDisplay.classList.contains('tableau-pile')) {
+            const movedCardIndex = destinationArray.length - amountMovedCards;
+            originArray.push(...destinationArray.splice(movedCardIndex, amountMovedCards));
+            for (let i = 0; i < amountMovedCards; i++) {
+                originPileDisplay.appendChild(destinationPileDisplay.children[movedCardIndex]);
+            }
             if (prevCardHidden) {
                 originPileDisplay.children[cardIndex - 1].classList.add('hidden');
                 originPileDisplay.children[cardIndex - 1].setAttribute('src', './images/card-back.png');
             }
             alignTableauCards(originPileDisplay);
         }
+    }
+}
+
+
+function gameIsWon() {
+    if (foundations.every(pile => pile.length === 13)) {
+        console.log('you won the game');
+    } else if (hiddenCards.length === 0 && stock.length === 0 && waste.length === 0) automateMoves();
+}
+
+function automateMoves() {
+    while (!foundations.every(pile => pile.length === 13)) {
+        tableau.forEach((tableauPile, i) => {
+            foundations.forEach((foundationsPile, j) => {
+                const lastTCardIndex = tableauPile.length - 1;
+                const lastFCardIndex = foundationsPile.length - 1;
+
+                console.log(tableauPile);
+                console.log(foundationsPile);
+
+                if (tableauPile.length > 0 &&
+                    tableauPile[lastTCardIndex].suit === foundationsPile[lastFCardIndex].suit &&
+                    tableauPile[lastTCardIndex].value === foundationsPile[lastFCardIndex].value + 1
+                ) {
+                    const cardToMove = tableauDisplay[i].children[lastTCardIndex];
+                    foundationsDisplay[j].appendChild(cardToMove);
+                    cardToMove.style.top = '0px';
+                    cardToMove.style.zIndex = foundationsDisplay[j].children.length; // changed here
+                    foundationsPile.push(tableauPile.pop());
+                }
+            });
+            
+        });
     }
 }
 
