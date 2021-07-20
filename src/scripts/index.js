@@ -32,6 +32,7 @@ function startGame() {
     createCards();
     shuffleCards();
     distributeCards(deck);
+    // distributeCardsTest();
     displayCards();
 }
 startGame();
@@ -51,7 +52,7 @@ function createCards() {
     const suits = ['hearts', 'diamonds', 'spades', 'clubs'];
 
     suits.forEach(suit => {
-        for (let i=0; i < 13; i++) {
+        for (let i = 0; i < 13; i++) {
             deck.push({
                 suit: suit,
                 value: i+1,
@@ -77,17 +78,37 @@ function shuffleCards() {
 }
 
 
-function distributeCards(arr) {
+function distributeCardsTest() {
+    foundations = [[],[],[],[]];
+    waste = [];
+    stock = [];
+    tableau = [[],[],[],[]];
+
+    let hearts = deck.filter(card => card.suit === 'hearts').reverse();
+    let diamonds = deck.filter(card => card.suit === 'diamonds').reverse();
+    let spades = deck.filter(card => card.suit === 'spades').reverse();
+    let clubs = deck.filter(card => card.suit === 'clubs').reverse();
+
+    hearts.forEach(card => tableau[0].push(card));
+    diamonds.forEach(card => tableau[1].push(card));
+    spades.forEach(card => tableau[2].push(card));
+    clubs.forEach(card => tableau[3].push(card));
+
+    stock.push(tableau[3].pop());
+}
+
+
+function distributeCards(cards) {
     foundations = [[],[],[],[]];
     waste = [];
     stock = [];
     tableau = [];
 
-    for (let i=0; i < 7; i++) {
-        tableau.push(arr.splice(0, i+1));
+    for (let i = 0; i < 7; i++) {
+        tableau.push(cards.splice(0, i+1));
     }
         
-    stock = (arr.splice(0, arr.length));
+    stock = (cards.splice(0, cards.length));
     stock.forEach(card => {
         card.position = 'stock';
     });
@@ -98,6 +119,8 @@ function displayCards() {
     tableau.forEach((pile, i) => {
         let tableauPileHtml = '';
         pile.forEach((card,j) => {
+            // tableauPileHtml += 
+            //     `<img src="${card.imageSrc}" class="card"/>`;
             tableauPileHtml += (j === pile.length - 1) ?
                 `<img src="${card.imageSrc}" class="card"/>` :
                 '<img src="./images/card-back.png" class="card hidden"/>';
@@ -110,7 +133,12 @@ function displayCards() {
     stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
     stockDisplay.addEventListener('click', turnStockCard);
 
-    foundationsDisplay.forEach(pile => pile.addEventListener('click', moveCard));
+    wasteDisplay.innerHTML = '';
+
+    foundationsDisplay.forEach(pile => {
+        pile.innerHTML = '';
+        pile.addEventListener('click', moveCard);
+    });
 }
 
 
@@ -318,30 +346,49 @@ function gameIsWon() {
     if (foundations.every(pile => pile.length === 13)) {
         console.log('you won the game');
     } else if (hiddenCards.length === 0 && stock.length === 0 && waste.length === 0) automateMoves();
+    
+    console.log(foundations.every(pile => pile.length === 13));
 }
 
 
 function automateMoves() {
-    while (!foundations.every(pile => pile.length === 13)) {
-        tableau.forEach((tableauPile, i) => {
-            foundations.forEach((foundationsPile, j) => {
-                const lastTCardIndex = tableauPile.length - 1;
-                const lastFCardIndex = foundationsPile.length - 1;
+    let intervalId = setInterval(() => {
+        for (let i = 0 ; i < tableau.length; i++) {  // tableau.forEach((tableauPile, i) => {
+            stopLoop = false;
+            for (let j = 0; j < foundations.length; j++) { // foundations.forEach((foundationsPile, j) => {
+                const lastTCardIndex = tableau[i].length - 1;
+                const lastFCardIndex = foundations[j] ? foundations[j].length - 1 : 0;
 
-                if (tableauPile.length > 0 &&
-                    tableauPile[lastTCardIndex].suit === foundationsPile[lastFCardIndex].suit &&
-                    tableauPile[lastTCardIndex].value === foundationsPile[lastFCardIndex].value + 1
+                if (tableau[i].length > 0 && tableau[i][lastTCardIndex].value === 1 && foundations[j].length === 0) {
+                    const cardToMove = tableauDisplay[i].children[lastTCardIndex];
+                    foundationsDisplay[j].appendChild(cardToMove);
+                    cardToMove.style.top = '0px';
+                    cardToMove.style.zIndex = foundationsDisplay[j].children.length;
+                    foundations[j].push(tableau[i].pop());
+                    stopLoop = true;
+                    console.log('here');
+                    break;
+                } else if (
+                    tableau[i].length > 0 &&
+                    (tableau[i][lastTCardIndex].suit === foundations[j][lastFCardIndex].suit &&
+                    tableau[i][lastTCardIndex].value === foundations[j][lastFCardIndex].value + 1)
                 ) {
                     const cardToMove = tableauDisplay[i].children[lastTCardIndex];
                     foundationsDisplay[j].appendChild(cardToMove);
                     cardToMove.style.top = '0px';
-                    cardToMove.style.zIndex = foundationsDisplay[j].children.length; // changed here
-                    foundationsPile.push(tableauPile.pop());
+                    cardToMove.style.zIndex = foundationsDisplay[j].children.length;
+                    foundations[j].push(tableau[i].pop());
+                    stopLoop = true;
+                    break;
                 }
-            });
-            
-        });
-    }
+                console.log(i, j);
+            }
+            if (stopLoop) break;
+        }
+        if (foundations.every(pile => pile.length === 13)) {
+            clearInterval(intervalId);
+        }
+    }, 700);
 }
 
 
@@ -404,3 +451,19 @@ function startClock() {
         }, 1000);
     }
 }
+
+
+let stopLoop = false;
+// let array1 = [0, 1, 2, 3, 4, 5, 6];
+// let array2 = [0, 1, 2, 3];
+
+// for (let i = 0; i < array1.length; i++) {
+//     for (let j = 0; j < array2.length; j++) {
+//         console.log(`i is ${i}, j is ${j}`);
+//         if (array2[j] === 2) {
+//             stopLoop = true;
+//             break;
+//         } 
+//     }
+//     if (stopLoop) break;
+// }
