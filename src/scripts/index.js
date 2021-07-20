@@ -5,6 +5,7 @@ const tableauDisplay = Array.from(document.getElementsByClassName('tableau-pile'
 const placeholders = Array.from(document.getElementsByClassName('placeholder'));
 const hiddenCards = document.getElementsByClassName('hidden');
 const btnUndo = document.getElementById('btn-undo');
+const btnPauseStart = document.getElementById('btn-pause-start');
 let deck = [];
 let foundations = [[],[],[],[]];
 let waste = [];
@@ -13,6 +14,9 @@ let tableau = [];
 let isLastTableauPileCard = true;
 let score = 0;
 let moves = 0;
+let seconds = 0;
+let minutes = 0;
+let clock;
 let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
 
 
@@ -69,6 +73,7 @@ function displayCards() {
     stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
     stockDisplay.addEventListener('click', turnStockCard);
 
+    foundationsDisplay.forEach(pile => pile.addEventListener('click', moveCard));
 }
 
 
@@ -158,7 +163,6 @@ function moveCard(e) {
             selectedCardDisplay.classList.add('card-active');
             originPileDisplay = e.target.parentNode;
             findSelectedCard();
-            foundationsDisplay.forEach(pile => pile.addEventListener('click', moveCard));
         } else console.log('select a valid card');
         return;
     }
@@ -188,7 +192,6 @@ function moveCard(e) {
             selectedCardDisplay.classList.add('card-active');
             originPileDisplay = e.target.parentNode;
             findSelectedCard();
-            foundationsDisplay.forEach(pile => pile.addEventListener('click', moveCard));
         } else console.log('move not valid');
     }
 }
@@ -321,6 +324,42 @@ function updateScore(action) {
             (originPileDisplay.classList.contains('waste-pile') || originPileDisplay.classList.contains('tableau-pile')) &&
             destinationPileDisplay.classList.contains('foundations-pile')
         ) score -= 10;
+    }
+}
+
+btnPauseStart.addEventListener('click', pauseStartGame);
+
+clock = setInterval(() => {
+    seconds++;
+    if (seconds === 60) {
+        minutes ++;
+        seconds = 0;
+    }
+    console.log(`${minutes}:${seconds}`);
+}, 1000);
+
+function pauseStartGame() {
+    if (btnPauseStart.textContent === 'Pause') {
+        clearInterval(clock);
+        btnPauseStart.textContent = 'Start';
+        foundationsDisplay.forEach(pile => pile.removeEventListener('click', moveCard));
+        tableauDisplay.forEach(pile => pile.removeEventListener('click', moveCard));
+        wasteDisplay.removeEventListener('click', moveCard);
+        stockDisplay.removeEventListener('click', turnStockCard);
+    } else if (btnPauseStart.textContent === 'Start') {
+        clock = setInterval(() => {
+            seconds++;
+            if (seconds === 60) {
+                minutes ++;
+                seconds = 0;
+            }
+            console.log(`${minutes}:${seconds}`);
+        }, 1000);
+        btnPauseStart.textContent = 'Pause';
+        foundationsDisplay.forEach(pile => pile.addEventListener('click', moveCard));
+        tableauDisplay.forEach(pile => pile.addEventListener('click', moveCard));
+        waste.length > 0 && wasteDisplay.addEventListener('click', moveCard);
+        stockDisplay.addEventListener('click', turnStockCard);
     }
 }
 
