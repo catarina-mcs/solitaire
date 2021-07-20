@@ -11,6 +11,8 @@ let waste = [];
 let stock = [];
 let tableau = [];
 let isLastTableauPileCard = true;
+let score = 0;
+let moves = 0;
 let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
 
 
@@ -107,6 +109,7 @@ function updateCardsDisplay() {
 
 function updateArrays() {
     if (destinationPileDisplay.classList.contains('foundations-pile')) {
+        amountMovedCards = originArray.length - cardIndex;
         const movedCard = originArray.pop();
         destinationArray.push(movedCard);
     } else if (destinationPileDisplay.classList.contains('tableau-pile')) {
@@ -120,6 +123,7 @@ function updateArrays() {
 
 function turnStockCard() {
     lastMove = 'turn stock card';
+    moves ++;
 
     if (selectedCardDisplay) {
         selectedCardDisplay.classList.remove('card-active');
@@ -171,6 +175,8 @@ function moveCard(e) {
         
         if (isMoveValid()) {
             updateArrays();
+            updateScore('make move');
+            moves ++;
             lastMove = 'move card';
             lastMovedCard = selectedCardDisplay;
             selectedCardDisplay.classList.remove('card-active');
@@ -264,6 +270,7 @@ function undoLastMove() {
             alignTableauCards(originPileDisplay);
         }
     }
+    updateScore('undo move');
 }
 
 
@@ -280,9 +287,6 @@ function automateMoves() {
                 const lastTCardIndex = tableauPile.length - 1;
                 const lastFCardIndex = foundationsPile.length - 1;
 
-                console.log(tableauPile);
-                console.log(foundationsPile);
-
                 if (tableauPile.length > 0 &&
                     tableauPile[lastTCardIndex].suit === foundationsPile[lastFCardIndex].suit &&
                     tableauPile[lastTCardIndex].value === foundationsPile[lastFCardIndex].value + 1
@@ -296,6 +300,27 @@ function automateMoves() {
             });
             
         });
+    }
+}
+
+
+function updateScore(action) {
+    if (action === 'make move') {
+        if (prevCardHidden) score += 5;
+        if (originPileDisplay.classList.contains('waste-pile') && destinationPileDisplay.classList.contains('tableau-pile')) score += 5;
+        if (originPileDisplay.classList.contains('foundations-pile') && destinationPileDisplay.classList.contains('tableau-pile')) score -= 15;
+        if (
+            (originPileDisplay.classList.contains('waste-pile') || originPileDisplay.classList.contains('tableau-pile')) &&
+            destinationPileDisplay.classList.contains('foundations-pile')
+        ) score += 10;
+    } else if (action === 'undo move' && lastMove === 'move card') {
+        if (prevCardHidden) score -= 5;
+        if (originPileDisplay.classList.contains('waste-pile') && destinationPileDisplay.classList.contains('tableau-pile')) score -= 5;
+        if (originPileDisplay.classList.contains('foundations-pile') && destinationPileDisplay.classList.contains('tableau-pile')) score += 15;
+        if (
+            (originPileDisplay.classList.contains('waste-pile') || originPileDisplay.classList.contains('tableau-pile')) &&
+            destinationPileDisplay.classList.contains('foundations-pile')
+        ) score -= 10;
     }
 }
 
