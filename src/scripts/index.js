@@ -14,7 +14,7 @@ let waste = [];
 let stock = [];
 let tableau = [];
 let isLastTableauPileCard = true;
-let score, moves, seconds, minutes, clock, thisGameDeck;
+let score, moves, seconds, minutes, clock, thisGameDeck, stopLoop;
 let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
 
 
@@ -32,7 +32,6 @@ function startGame() {
     createCards();
     shuffleCards();
     distributeCards(deck);
-    // distributeCardsTest();
     displayCards();
 }
 startGame();
@@ -78,26 +77,6 @@ function shuffleCards() {
 }
 
 
-function distributeCardsTest() {
-    foundations = [[],[],[],[]];
-    waste = [];
-    stock = [];
-    tableau = [[],[],[],[]];
-
-    let hearts = deck.filter(card => card.suit === 'hearts').reverse();
-    let diamonds = deck.filter(card => card.suit === 'diamonds').reverse();
-    let spades = deck.filter(card => card.suit === 'spades').reverse();
-    let clubs = deck.filter(card => card.suit === 'clubs').reverse();
-
-    hearts.forEach(card => tableau[0].push(card));
-    diamonds.forEach(card => tableau[1].push(card));
-    spades.forEach(card => tableau[2].push(card));
-    clubs.forEach(card => tableau[3].push(card));
-
-    stock.push(tableau[3].pop());
-}
-
-
 function distributeCards(cards) {
     foundations = [[],[],[],[]];
     waste = [];
@@ -119,8 +98,6 @@ function displayCards() {
     tableau.forEach((pile, i) => {
         let tableauPileHtml = '';
         pile.forEach((card,j) => {
-            // tableauPileHtml += 
-            //     `<img src="${card.imageSrc}" class="card"/>`;
             tableauPileHtml += (j === pile.length - 1) ?
                 `<img src="${card.imageSrc}" class="card"/>` :
                 '<img src="./images/card-back.png" class="card hidden"/>';
@@ -192,6 +169,7 @@ function updateArrays() {
 
 
 function turnStockCard() {
+    btnUndo.addEventListener('click', undoLastMove);
     lastMove = 'turn stock card';
     moves ++;
     startClock();
@@ -248,6 +226,7 @@ function moveCard(e) {
             updateScore('make move');
             moves ++;
             startClock();
+            btnUndo.addEventListener('click', undoLastMove);
             lastMove = 'move card';
             lastMovedCard = selectedCardDisplay;
             selectedCardDisplay.classList.remove('card-active');
@@ -339,15 +318,15 @@ function undoLastMove() {
         }
     }
     updateScore('undo move');
+    btnUndo.removeEventListener('click', undoLastMove);
 }
 
 
 function gameIsWon() {
     if (foundations.every(pile => pile.length === 13)) {
         console.log('you won the game');
+        clearInterval(clock);
     } else if (hiddenCards.length === 0 && stock.length === 0 && waste.length === 0) automateMoves();
-    
-    console.log(foundations.every(pile => pile.length === 13));
 }
 
 
@@ -381,14 +360,14 @@ function automateMoves() {
                     stopLoop = true;
                     break;
                 }
-                console.log(i, j);
             }
             if (stopLoop) break;
         }
         if (foundations.every(pile => pile.length === 13)) {
             clearInterval(intervalId);
+            clearInterval(clock);
         }
-    }, 700);
+    }, 400);
 }
 
 
@@ -451,19 +430,3 @@ function startClock() {
         }, 1000);
     }
 }
-
-
-let stopLoop = false;
-// let array1 = [0, 1, 2, 3, 4, 5, 6];
-// let array2 = [0, 1, 2, 3];
-
-// for (let i = 0; i < array1.length; i++) {
-//     for (let j = 0; j < array2.length; j++) {
-//         console.log(`i is ${i}, j is ${j}`);
-//         if (array2[j] === 2) {
-//             stopLoop = true;
-//             break;
-//         } 
-//     }
-//     if (stopLoop) break;
-// }
