@@ -43,7 +43,11 @@ body {
     align-items: center;
 }
 
-.right-align {
+.clock {
+    width: 36px;
+}
+
+.points, .moves {
     text-align: right;
     width: 90px;
 }

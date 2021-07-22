@@ -8,11 +8,12 @@ const btnUndo = document.getElementById('btn-undo');
 const btnPauseStart = document.getElementById('btn-pause-start');
 const btnRestart = document.getElementById('btn-restart');
 const btnNewGame = document.getElementById('btn-new-game');
+const minutesDisplay = document.getElementById('minutes');
+const secondsDisplay = document.getElementById('seconds');
+const scoreDisplay = document.getElementById('score');
+const movesDisplay = document.getElementById('moves');
 let deck = [];
-let foundations = [[],[],[],[]];
-let waste = [];
-let stock = [];
-let tableau = [];
+let foundations, waste, stock, tableau;
 let isLastTableauPileCard = true;
 let score, moves, seconds, minutes, clock, thisGameDeck, stopLoop;
 let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
@@ -23,11 +24,23 @@ btnPauseStart.addEventListener('click', pauseStartGame);
 btnRestart.addEventListener('click', restartGame);
 btnNewGame.addEventListener('click', startGame);
 
-function startGame() {
+function reset() {
+    foundations = [[],[],[],[]];
+    waste = [];
+    stock = [];
+    tableau = [];
+    minutes = 0;
+    seconds = 0;
     score = 0;
     moves = 0;
-    seconds = 0;
-    minutes = 0;
+    minutesDisplay.textContent = '00';
+    secondsDisplay.textContent = '00';
+    scoreDisplay.textContent = '0';
+    movesDisplay.textContent = '0';
+}
+
+function startGame() {
+    reset();
     clearInterval(clock);
     createCards();
     shuffleCards();
@@ -37,10 +50,7 @@ function startGame() {
 startGame();
 
 function restartGame() {
-    score = 0;
-    moves = 0;
-    seconds = 0;
-    minutes = 0;
+    reset();
     clearInterval(clock);
     distributeCards(thisGameDeck);
     displayCards();
@@ -78,10 +88,7 @@ function shuffleCards() {
 
 
 function distributeCards(cards) {
-    foundations = [[],[],[],[]];
-    waste = [];
-    stock = [];
-    tableau = [];
+
 
     for (let i = 0; i < 7; i++) {
         tableau.push(cards.splice(0, i+1));
@@ -172,6 +179,7 @@ function turnStockCard() {
     btnUndo.addEventListener('click', undoLastMove);
     lastMove = 'turn stock card';
     moves ++;
+    movesDisplay.textContent = moves;
     startClock();
 
     if (selectedCardDisplay) {
@@ -225,6 +233,7 @@ function moveCard(e) {
             updateArrays();
             updateScore('make move');
             moves ++;
+            movesDisplay.textContent = moves;
             startClock();
             btnUndo.addEventListener('click', undoLastMove);
             lastMove = 'move card';
@@ -389,27 +398,34 @@ function updateScore(action) {
             destinationPileDisplay.classList.contains('foundations-pile')
         ) score -= 10;
     }
+
+    scoreDisplay.textContent = score;
 }
 
 
 function pauseStartGame() {
-    if (btnPauseStart.textContent === 'Pause') {
+    if (btnPauseStart.classList.contains('pause') && moves > 0) {
         clearInterval(clock);
-        btnPauseStart.textContent = 'Start';
+        btnPauseStart.classList.remove('pause');
+        btnPauseStart.classList.add('play');
+        btnPauseStart.setAttribute('src', './images/play-btn.svg');
         foundationsDisplay.forEach(pile => pile.removeEventListener('click', moveCard));
         tableauDisplay.forEach(pile => pile.removeEventListener('click', moveCard));
         wasteDisplay.removeEventListener('click', moveCard);
         stockDisplay.removeEventListener('click', turnStockCard);
-    } else if (btnPauseStart.textContent === 'Start') {
+    } else if (btnPauseStart.classList.contains('play')) {
         clock = setInterval(() => {
             seconds++;
             if (seconds === 60) {
                 minutes ++;
                 seconds = 0;
             }
-            console.log(`${minutes}:${seconds}`);
+            minutesDisplay.textContent = minutes >= 10 ? minutes : `0${minutes}`;
+            secondsDisplay.textContent = seconds >= 10 ? seconds : `0${seconds}`;
         }, 1000);
-        btnPauseStart.textContent = 'Pause';
+        btnPauseStart.classList.remove('play');
+        btnPauseStart.classList.add('pause');
+        btnPauseStart.setAttribute('src', './images/pause-btn.svg');
         foundationsDisplay.forEach(pile => pile.addEventListener('click', moveCard));
         tableauDisplay.forEach(pile => pile.addEventListener('click', moveCard));
         waste.length > 0 && wasteDisplay.addEventListener('click', moveCard);
@@ -426,7 +442,8 @@ function startClock() {
                 minutes ++;
                 seconds = 0;
             }
-            console.log(`${minutes}:${seconds}`);
+            minutesDisplay.textContent = minutes >= 10 ? minutes : `0${minutes}`;
+            secondsDisplay.textContent = seconds >= 10 ? seconds : `0${seconds}`;
         }, 1000);
     }
 }
