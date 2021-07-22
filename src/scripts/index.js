@@ -127,7 +127,7 @@ function alignTableauCards(tableauPile) {
         card.style.zIndex = zIndex;
         card.style.top = `${top}px`;
         zIndex++;
-        top += 38;
+        top += 30;
     });
 }
 

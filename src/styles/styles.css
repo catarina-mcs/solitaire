@@ -2,13 +2,71 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Barlow', sans-serif;
 }
 
 body {
-    /* background: linear-gradient(45deg, #5c934c 25%, #4c7740 25%, #4c7740 50%, #5c934c 50%, #5c934c 75%, #4c7740 75%, #4c7740 100%); */
-    /* background-size: 14.14px 14.14px; */
-    background-color: #333333;
+    background: url(../images/background.png);
+    background-repeat: repeat;
+    background-color: #2a365e;
+    color: #f5f3eb;
+    font-size: 0.875rem;
 }
+
+
+/* -------------------------------------------------
+--------------------- TOP BAR --------------------- 
+--------------------------------------------------- */
+
+.top-bar {
+    background-color: rgba(0,0,0,0.25);
+}
+
+.container {
+    max-width: 850px;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#btn-pause-start {
+    width: 20px;
+    height: auto;
+    margin-right: 0.5em;
+    cursor: pointer;
+}
+
+.performance {
+    display: flex;
+    align-items: center;
+}
+
+.right-align {
+    text-align: right;
+    width: 90px;
+}
+
+.btn {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #f5f3eb;
+    background-color: unset;
+    border: unset;
+    margin-left: 0.5em;
+    padding: 1em 0.75em;
+    cursor: pointer;
+}
+
+.btn:hover, .btn:focus {
+    background-color: rgba(0,0,0,0.5);
+}
+
+
+/* -------------------------------------------------
+ -------------------- GAME AREA -------------------- 
+ ------------------------------------------------- */
 
 .game-area {
     max-width: 850px;
@@ -33,7 +91,8 @@ body {
 
 
 .placeholder {
-    background-color: #f1f0f06b;
+    background-color: rgba(245,243,235,0.05);
+    border: 1px solid rgba(245,243,235,0.15);
     border-radius: 5px;
     width: 100px;
     height: 150px;
@@ -41,18 +100,18 @@ body {
 }
 
 .card {
-    width: 100%;
-    height: auto;
+    width: 100px;
+    height: 150px;
     border-radius: 5px;
+    border: 1px solid #c1b585;
     position: absolute;
+    cursor: pointer;
 }
 
 .card-active {
-    border: 1px solid yellow;
+    border: 2px solid #705c0d;
 }
 
-.buttons {
-    position: absolute;
-    bottom: 40px;
-    left: 40px;
+.hidden {
+    cursor: auto;
 }
