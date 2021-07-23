@@ -147,8 +147,6 @@ function alignTableauCards(tableauPile) {
 
     if (tableauPileCards.length > longestPileLength && tableauPileCards.length > 5) {
         longestPileLength = tableauPileCards.length;
-        console.log((30 * (longestPileLength - 6)) + 150);
-        console.log(longestPileLength);
         gameArea.style.marginBottom = `${(30 * (longestPileLength - 6)) + 150 + 42}px`; 
     }
 }
@@ -223,6 +221,7 @@ function turnStockCard() {
         stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
         wasteDisplay.innerHTML = '';
         wasteDisplay.removeEventListener('click', moveCard);
+        stock.length === 0 && stockDisplay.removeEventListener('click', turnStockCard);
     }
 }
 
@@ -397,6 +396,10 @@ function automateMoves() {
                     cardToMove.style.zIndex = foundationsDisplay[j].children.length;
                     foundations[j].push(tableau[i].pop());
                     stopLoop = true;
+                    score += 10;
+                    moves++;
+                    scoreDisplay.textContent = score;
+                    movesDisplay.textContent = moves;
                     break;
                 } else if (
                     tableau[i].length > 0 &&
@@ -409,6 +412,10 @@ function automateMoves() {
                     cardToMove.style.zIndex = foundationsDisplay[j].children.length;
                     foundations[j].push(tableau[i].pop());
                     stopLoop = true;
+                    score += 10;
+                    moves++;
+                    scoreDisplay.textContent = score;
+                    movesDisplay.textContent = moves;
                     break;
                 }
             }
@@ -491,12 +498,18 @@ function startClock() {
 
 
 function showWinningMessage() {
+    gameArea.style.marginBottom = '42px';
     winningMessage.style.display = 'block';
     winningMessage.innerHTML = `
-        <h3 class="congrats"> Congratulations, you have won! </h3>
-        <p class="stats"> 
-            Stats: ${minutesDisplay.textContent}:${secondsDisplay.textContent} | 
-            ${score} points | ${moves} moves 
-        </p>
+        <h3 class="congrats"> Congratulations, you won! </h3>
+        <div class="stats"> 
+            <span>${minutesDisplay.textContent}:${secondsDisplay.textContent}</span>
+            <span>|</span>
+            <span>${score} points</span>
+            <span>|</span>
+            <span>${moves} moves</span>
+        </div>
+        <button class="btn btn-popup" id="btn-play-again">Play Again</button>
     `;
+    document.getElementById('btn-play-again').addEventListener('click', startGame);
 }
