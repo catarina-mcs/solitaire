@@ -1,3 +1,4 @@
+const gameArea = document.querySelector('.game-area');
 const foundationsDisplay = Array.from(document.getElementsByClassName('foundations-pile'));
 const wasteDisplay = document.querySelector('.waste-pile');
 const stockDisplay = document.querySelector('.stock-pile');
@@ -12,9 +13,11 @@ const minutesDisplay = document.getElementById('minutes');
 const secondsDisplay = document.getElementById('seconds');
 const scoreDisplay = document.getElementById('score');
 const movesDisplay = document.getElementById('moves');
+const winningMessage = document.querySelector('.winning-message');
 let deck = [];
 let foundations, waste, stock, tableau;
 let isLastTableauPileCard = true;
+let longestPileLength = 0;
 let score, moves, seconds, minutes, clock, thisGameDeck, stopLoop, stockHasOneRound;
 let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
 
@@ -40,6 +43,7 @@ function reset() {
     movesDisplay.textContent = '0';
     foundationsDisplay.forEach(pile => pile.style.cursor = 'default');
     tableauDisplay.forEach(pile => pile.style.cursor = 'default');
+    winningMessage.style.display = 'none';
 }
 
 function startGame() {
@@ -140,6 +144,13 @@ function alignTableauCards(tableauPile) {
         zIndex++;
         top += 30;
     });
+
+    if (tableauPileCards.length > longestPileLength && tableauPileCards.length > 5) {
+        longestPileLength = tableauPileCards.length;
+        console.log((30 * (longestPileLength - 6)) + 150);
+        console.log(longestPileLength);
+        gameArea.style.marginBottom = `${(30 * (longestPileLength - 6)) + 150 + 42}px`; 
+    }
 }
 
 
@@ -365,7 +376,7 @@ function undoLastMove() {
 
 function gameIsWon() {
     if (foundations.every(pile => pile.length === 13)) {
-        console.log('you won the game');
+        showWinningMessage();
         clearInterval(clock);
     } else if (hiddenCards.length === 0 && stock.length === 0 && waste.length === 0) automateMoves();
 }
@@ -406,6 +417,7 @@ function automateMoves() {
         if (foundations.every(pile => pile.length === 13)) {
             clearInterval(intervalId);
             clearInterval(clock);
+            showWinningMessage();
         }
     }, 100);
 }
@@ -475,4 +487,16 @@ function startClock() {
         minutesDisplay.textContent = minutes >= 10 ? minutes : `0${minutes}`;
         secondsDisplay.textContent = seconds >= 10 ? seconds : `0${seconds}`;
     }, 1000);
+}
+
+
+function showWinningMessage() {
+    winningMessage.style.display = 'block';
+    winningMessage.innerHTML = `
+        <h3 class="congrats"> Congratulations, you have won! </h3>
+        <p class="stats"> 
+            Stats: ${minutesDisplay.textContent}:${secondsDisplay.textContent} | 
+            ${score} points | ${moves} moves 
+        </p>
+    `;
 }

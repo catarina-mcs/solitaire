@@ -11,19 +11,25 @@ body {
     background-color: #2a365e;
     color: #f5f3eb;
     font-size: 0.875rem;
+    min-height: 100vh;
+    min-width: 812px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 
-/* -------------------------------------------------
---------------------- TOP BAR --------------------- 
---------------------------------------------------- */
+/* --------------------------------------------------
+---------------------- TOP BAR ----------------------
+-------------------------------------------------- */
 
 .top-bar {
     background-color: rgba(0,0,0,0.25);
+    align-self: stretch;
 }
 
 .container {
-    max-width: 850px;
+    width: 784px;
     height: 100%;
     margin: 0 auto;
     display: flex;
@@ -76,13 +82,14 @@ body {
     background-color: transparent;
 }
 
-/* -------------------------------------------------
- -------------------- GAME AREA -------------------- 
- ------------------------------------------------- */
+
+/* --------------------------------------------------
+--------------------- GAME AREA ---------------------
+-------------------------------------------------- */
 
 .game-area {
-    max-width: 850px;
-    margin: 3em auto 0;
+    /* width: 784px; */
+    margin: 3em 1em;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     grid-column-gap: 1em;
@@ -132,4 +139,17 @@ body {
 
 .hidden {
     cursor: auto;
+}
+
+.tableau-pile .card:last-child {
+    margin-bottom: 1em;
+}
+
+/* --------------------------------------------------
+------------------ WINNING MESSAGE ------------------
+-------------------------------------------------- */
+
+.winning-message {
+    position: absolute;
+    top: 250px;
 }
