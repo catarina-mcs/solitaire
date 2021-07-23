@@ -15,7 +15,7 @@ const movesDisplay = document.getElementById('moves');
 let deck = [];
 let foundations, waste, stock, tableau;
 let isLastTableauPileCard = true;
-let score, moves, seconds, minutes, clock, thisGameDeck, stopLoop;
+let score, moves, seconds, minutes, clock, thisGameDeck, stopLoop, stockHasOneRound;
 let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
 
 
@@ -33,10 +33,13 @@ function reset() {
     seconds = 0;
     score = 0;
     moves = 0;
+    stockHasOneRound = false;
     minutesDisplay.textContent = '00';
     secondsDisplay.textContent = '00';
     scoreDisplay.textContent = '0';
     movesDisplay.textContent = '0';
+    foundationsDisplay.forEach(pile => pile.style.cursor = 'default');
+    tableauDisplay.forEach(pile => pile.style.cursor = 'default');
 }
 
 function startGame() {
@@ -44,7 +47,7 @@ function startGame() {
     clearInterval(clock);
     createCards();
     shuffleCards();
-    distributeCards(deck);
+    distributeCards();
     displayCards();
 }
 startGame();
@@ -52,7 +55,7 @@ startGame();
 function restartGame() {
     reset();
     clearInterval(clock);
-    distributeCards(thisGameDeck);
+    distributeCards();
     displayCards();
 }
 
@@ -87,17 +90,18 @@ function shuffleCards() {
 }
 
 
-function distributeCards(cards) {
-
+function distributeCards() {
+    deck = thisGameDeck.map(card => card);
 
     for (let i = 0; i < 7; i++) {
-        tableau.push(cards.splice(0, i+1));
+        tableau.push(deck.splice(0, i+1));
     }
         
-    stock = (cards.splice(0, cards.length));
+    stock = (deck.splice(0, deck.length));
     stock.forEach(card => {
         card.position = 'stock';
     });
+
 }
 
 
@@ -177,16 +181,17 @@ function updateArrays() {
 
 function turnStockCard() {
     btnUndo.addEventListener('click', undoLastMove);
+    btnUndo.classList.remove('inactive');
     lastMove = 'turn stock card';
     moves ++;
     movesDisplay.textContent = moves;
-    startClock();
-
+    moves === 1 && startClock();
+    
     if (selectedCardDisplay) {
         selectedCardDisplay.classList.remove('card-active');
         selectedCardDisplay = null;
     }
-
+    
     wasteDisplay.addEventListener('click', moveCard);
     if (stock.length > 0) {
         const turnedCard = stock.pop();
@@ -196,8 +201,11 @@ function turnStockCard() {
         cardImg.classList.add('card');
         cardImg.style.zIndex = waste.length;
         wasteDisplay.appendChild(cardImg);
-        (stock.length === 0 && waste.length !== 0) && (stockDisplay.innerHTML = '↻') ;
-        (stock.length === 0 && waste.length === 0) && (stockDisplay.innerHTML = '') ;
+        if (stock.length === 0 && waste.length !== 0) {
+            (stockDisplay.innerHTML = '↻');
+            stockHasOneRound = true;
+        }
+        (stock.length === 0 && waste.length === 0) && (stockDisplay.innerHTML = '');
     } else if (stock.length === 0) {
         waste.forEach(card => stock.unshift(card));
         waste = [];
@@ -215,14 +223,19 @@ function moveCard(e) {
             selectedCardDisplay.classList.add('card-active');
             originPileDisplay = e.target.parentNode;
             findSelectedCard();
-        } else console.log('select a valid card');
+            foundationsDisplay.forEach(pile => pile.style.cursor = 'pointer');
+            tableauDisplay.forEach(pile => pile.style.cursor = 'pointer');
+        }
         return;
     }
 
     if (selectedCardDisplay) {
+        
         if (e.target === selectedCardDisplay) {
             selectedCardDisplay.classList.remove('card-active');
             selectedCardDisplay = null;
+            foundationsDisplay.forEach(pile => pile.style.cursor = 'default');
+            tableauDisplay.forEach(pile => pile.style.cursor = 'default');
             return;
         }
         
@@ -234,8 +247,11 @@ function moveCard(e) {
             updateScore('make move');
             moves ++;
             movesDisplay.textContent = moves;
-            startClock();
+            moves === 1 && startClock();
+            foundationsDisplay.forEach(pile => pile.style.cursor = 'default');
+            tableauDisplay.forEach(pile => pile.style.cursor = 'default');
             btnUndo.addEventListener('click', undoLastMove);
+            btnUndo.classList.remove('inactive');
             lastMove = 'move card';
             lastMovedCard = selectedCardDisplay;
             selectedCardDisplay.classList.remove('card-active');
@@ -247,7 +263,7 @@ function moveCard(e) {
             selectedCardDisplay.classList.add('card-active');
             originPileDisplay = e.target.parentNode;
             findSelectedCard();
-        } else console.log('move not valid');
+        }
     }
 }
 
@@ -304,9 +320,20 @@ function isMoveValid() {
 
 function undoLastMove() {
     if (lastMove === 'turn stock card') {
-        stock.push(waste.pop());
-        if (wasteDisplay.children.length > 0) wasteDisplay.removeChild(wasteDisplay.children[wasteDisplay.children.length - 1]);
-        if (stock.length === 1) stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
+        if (waste.length === 0 & stockHasOneRound) {
+            stock.forEach(card => waste.unshift(card));
+            stock = [];
+            const lastWasteCard = waste[waste.length - 1];
+            wasteDisplay.innerHTML = `<img src="${lastWasteCard.imageSrc}" class="card"/>`;
+            stockDisplay.innerHTML = '↻';
+        } else if (stock.length === 1 && stockHasOneRound) {
+            wasteDisplay.innerHTML = '';
+            stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
+        } else if (waste.length > 0) {
+            stock.push(waste.pop());
+            wasteDisplay.removeChild(wasteDisplay.children[wasteDisplay.children.length - 1]);
+            if (stock.length === 1) stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
+        }
     } else if (lastMove === 'move card') {
         if (originPileDisplay.classList.contains('foundations-pile') || originPileDisplay.classList.contains('waste-pile')) {
             originArray.push(destinationArray.pop());
@@ -327,7 +354,12 @@ function undoLastMove() {
         }
     }
     updateScore('undo move');
-    btnUndo.removeEventListener('click', undoLastMove);
+    if (moves > 0) {
+        btnUndo.removeEventListener('click', undoLastMove);
+        btnUndo.classList.add('inactive');
+    }
+    foundationsDisplay.forEach(pile => pile.style.cursor = 'default');
+    tableauDisplay.forEach(pile => pile.style.cursor = 'default');
 }
 
 
@@ -341,9 +373,9 @@ function gameIsWon() {
 
 function automateMoves() {
     let intervalId = setInterval(() => {
-        for (let i = 0 ; i < tableau.length; i++) {  // tableau.forEach((tableauPile, i) => {
+        for (let i = 0 ; i < tableau.length; i++) {
             stopLoop = false;
-            for (let j = 0; j < foundations.length; j++) { // foundations.forEach((foundationsPile, j) => {
+            for (let j = 0; j < foundations.length; j++) {
                 const lastTCardIndex = tableau[i].length - 1;
                 const lastFCardIndex = foundations[j] ? foundations[j].length - 1 : 0;
 
@@ -354,7 +386,6 @@ function automateMoves() {
                     cardToMove.style.zIndex = foundationsDisplay[j].children.length;
                     foundations[j].push(tableau[i].pop());
                     stopLoop = true;
-                    console.log('here');
                     break;
                 } else if (
                     tableau[i].length > 0 &&
@@ -376,7 +407,7 @@ function automateMoves() {
             clearInterval(intervalId);
             clearInterval(clock);
         }
-    }, 400);
+    }, 100);
 }
 
 
@@ -435,15 +466,13 @@ function pauseStartGame() {
 
 
 function startClock() {
-    if (moves === 1) {
-        clock = setInterval(() => {
-            seconds++;
-            if (seconds === 60) {
-                minutes ++;
-                seconds = 0;
-            }
-            minutesDisplay.textContent = minutes >= 10 ? minutes : `0${minutes}`;
-            secondsDisplay.textContent = seconds >= 10 ? seconds : `0${seconds}`;
-        }, 1000);
-    }
+    clock = setInterval(() => {
+        seconds++;
+        if (seconds === 60) {
+            minutes ++;
+            seconds = 0;
+        }
+        minutesDisplay.textContent = minutes >= 10 ? minutes : `0${minutes}`;
+        secondsDisplay.textContent = seconds >= 10 ? seconds : `0${seconds}`;
+    }, 1000);
 }

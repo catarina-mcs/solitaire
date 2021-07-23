@@ -63,10 +63,18 @@ body {
     cursor: pointer;
 }
 
-.btn:hover, .btn:focus {
+.btn:hover {
     background-color: rgba(0,0,0,0.5);
 }
 
+.inactive {
+    color: rgba(245,243,235,0.75);
+    cursor: not-allowed;
+}
+
+.inactive:hover {
+    background-color: transparent;
+}
 
 /* -------------------------------------------------
  -------------------- GAME AREA -------------------- 
@@ -86,7 +94,13 @@ body {
 }
 
 .stock-pile {
+    color: rgba(245,243,235,0.5);
     grid-column: 7 / 8;
+    font-size: 3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 .tableau-pile {
