@@ -43,6 +43,7 @@ function reset() {
     movesDisplay.textContent = '0';
     foundationsDisplay.forEach(pile => pile.style.cursor = 'default');
     tableauDisplay.forEach(pile => pile.style.cursor = 'default');
+    gameArea.style.marginBottom = '42px';
     winningMessage.style.display = 'none';
 }
 
@@ -218,10 +219,9 @@ function turnStockCard() {
     } else if (stock.length === 0) {
         waste.forEach(card => stock.unshift(card));
         waste = [];
-        stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
+        (stock.length > 0) && (stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>');
         wasteDisplay.innerHTML = '';
         wasteDisplay.removeEventListener('click', moveCard);
-        stock.length === 0 && stockDisplay.removeEventListener('click', turnStockCard);
     }
 }
 

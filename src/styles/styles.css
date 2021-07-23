@@ -16,6 +16,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    user-select: none;
 }
 
 
@@ -140,6 +141,7 @@ body {
     cursor: auto;
 }
 
+
 /* --------------------------------------------------
 ------------------ WINNING MESSAGE ------------------
 -------------------------------------------------- */
@@ -173,4 +175,24 @@ body {
 
 .btn-popup:hover {
     background-color: #705c0d;
+}
+
+
+/* --------------------------------------------------
+------------------- MEDIA QUERIES -------------------
+-------------------------------------------------- */
+
+@media screen and (min-width: 1280px) {
+    body {
+        min-width: 672px;
+    }
+
+    .container {
+        width: 644px;
+    }
+
+    .placeholder, .card {
+        width: 80px;
+        height: 120px;
+    }
 }
