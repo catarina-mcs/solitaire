@@ -89,7 +89,6 @@ body {
 -------------------------------------------------- */
 
 .game-area {
-    /* width: 784px; */
     margin: 3em 1em;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -115,7 +114,6 @@ body {
     grid-row: 2 / 3;
 }
 
-
 .placeholder {
     background-color: rgba(245,243,235,0.05);
     border: 1px solid rgba(245,243,235,0.15);
@@ -140,10 +138,6 @@ body {
 
 .hidden {
     cursor: auto;
-}
-
-.tableau-pile .card:last-child {
-    margin-bottom: 1em;
 }
 
 /* --------------------------------------------------
