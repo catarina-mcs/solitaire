@@ -1,5 +1,8 @@
 # Folders
 node_modules/
+.cache/
+.parcel-cache/
+.vscode/
 
 # Files
 .DS_Store
