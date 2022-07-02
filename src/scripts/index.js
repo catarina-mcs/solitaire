@@ -22,7 +22,6 @@ let score, moves, seconds, minutes, clock, thisGameDeck, stopLoop, stockHasOneRo
 let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
 
 
-btnUndo.addEventListener('click', undoLastMove);
 btnPauseStart.addEventListener('click', pauseStartGame);
 btnRestart.addEventListener('click', restartGame);
 btnNewGame.addEventListener('click', startGame);
@@ -45,6 +44,7 @@ function reset() {
     tableauDisplay.forEach(pile => pile.style.cursor = 'default');
     gameArea.style.marginBottom = '42px';
     winningMessage.style.display = 'none';
+    btnUndo.classList.add('inactive');
 }
 
 function startGame() {
