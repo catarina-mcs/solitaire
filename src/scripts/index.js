@@ -219,7 +219,10 @@ function turnStockCard() {
     } else if (stock.length === 0) {
         waste.forEach(card => stock.unshift(card));
         waste = [];
-        (stock.length > 0) && (stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>');
+        if (stock.length > 0) {
+            (stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>');
+            stockHasOneRound = false;
+        } 
         wasteDisplay.innerHTML = '';
         wasteDisplay.removeEventListener('click', moveCard);
     }
@@ -330,7 +333,7 @@ function isMoveValid() {
 
 function undoLastMove() {
     if (lastMove === 'turn stock card') {
-        if (waste.length === 0 & stockHasOneRound) {
+        if (waste.length === 0) {
             stock.forEach(card => waste.unshift(card));
             stock = [];
             const lastWasteCard = waste[waste.length - 1];
