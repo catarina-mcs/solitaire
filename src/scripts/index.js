@@ -220,7 +220,7 @@ function turnStockCard() {
         waste.forEach(card => stock.unshift(card));
         waste = [];
         if (stock.length > 0) {
-            (stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>');
+            stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
             stockHasOneRound = false;
         } 
         wasteDisplay.innerHTML = '';
@@ -336,8 +336,12 @@ function undoLastMove() {
         if (waste.length === 0) {
             stock.forEach(card => waste.unshift(card));
             stock = [];
-            const lastWasteCard = waste[waste.length - 1];
-            wasteDisplay.innerHTML = `<img src="${lastWasteCard.imageSrc}" class="card"/>`;
+            let wasteInnerHtml = '';
+            waste.forEach((card, i) => {
+                wasteInnerHtml += `<img src="${card.imageSrc}" class="card" style="z-index: ${i + 1};"/>`
+            })
+            wasteDisplay.innerHTML = wasteInnerHtml;
+            wasteDisplay.addEventListener('click', moveCard);
             stockDisplay.innerHTML = '↻';
         } else if (stock.length === 1 && stockHasOneRound) {
             wasteDisplay.innerHTML = '';
