@@ -19,7 +19,7 @@ let foundations, waste, stock, tableau;
 let isLastTableauPileCard = true;
 let longestPileLength = 0;
 let score, moves, seconds, minutes, clock, thisGameDeck, stopLoop, stockHasOneRound;
-let selectedCard, selectedCardDisplay, cardIndex, originArray, destinationArray, originPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
+let selectedCard, selectedCardDisplay, cardIndex, undoCardIndex, originArray, undoOriginArray, destinationArray, originPileDisplay, undoOriginPileDisplay, destinationPileDisplay, amountMovedCards, lastMove, lastMovedCard, prevCardHidden;
 
 
 btnPauseStart.addEventListener('click', pauseStartGame);
@@ -234,6 +234,9 @@ function moveCard(e) {
         if (e.target.classList.contains('card') && !e.target.classList.contains('hidden')) {
             selectedCardDisplay = e.target;
             selectedCardDisplay.classList.add('card-active');
+            undoOriginPileDisplay = originPileDisplay;
+            undoOriginArray = originArray;
+            undoCardIndex = cardIndex;
             originPileDisplay = e.target.parentNode;
             findSelectedCard();
             foundationsDisplay.forEach(pile => pile.style.cursor = 'pointer');
@@ -352,22 +355,22 @@ function undoLastMove() {
             if (stock.length === 1) stockDisplay.innerHTML = '<img src="./images/card-back.png" class="card"/>';
         }
     } else if (lastMove === 'move card') {
-        if (originPileDisplay.classList.contains('foundations-pile') || originPileDisplay.classList.contains('waste-pile')) {
-            originArray.push(destinationArray.pop());
-            originPileDisplay.appendChild(lastMovedCard);
-            lastMovedCard.style.zIndex = originArray.length;
+        if (undoOriginPileDisplay.classList.contains('foundations-pile') || undoOriginPileDisplay.classList.contains('waste-pile')) {
+            undoOriginArray.push(destinationArray.pop());
+            undoOriginPileDisplay.appendChild(lastMovedCard);
+            lastMovedCard.style.zIndex = undoOriginArray.length;
             lastMovedCard.style.top = '0px';
-        } else if (originPileDisplay.classList.contains('tableau-pile')) {
+        } else if (undoOriginPileDisplay.classList.contains('tableau-pile')) {
             const movedCardIndex = destinationArray.length - amountMovedCards;
-            originArray.push(...destinationArray.splice(movedCardIndex, amountMovedCards));
+            undoOriginArray.push(...destinationArray.splice(movedCardIndex, amountMovedCards));
             for (let i = 0; i < amountMovedCards; i++) {
-                originPileDisplay.appendChild(destinationPileDisplay.children[movedCardIndex]);
+                undoOriginPileDisplay.appendChild(destinationPileDisplay.children[movedCardIndex]);
             }
             if (prevCardHidden) {
-                originPileDisplay.children[cardIndex - 1].classList.add('hidden');
-                originPileDisplay.children[cardIndex - 1].setAttribute('src', './images/card-back.png');
+                undoOriginPileDisplay.children[undoCardIndex - 1].classList.add('hidden');
+                undoOriginPileDisplay.children[undoCardIndex - 1].setAttribute('src', './images/card-back.png');
             }
-            alignTableauCards(originPileDisplay);
+            alignTableauCards(undoOriginPileDisplay);
         }
     }
     updateScore('undo move');
