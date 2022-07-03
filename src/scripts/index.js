@@ -389,42 +389,46 @@ function gameIsWon() {
 
 
 function automateMoves() {
+    let lastTableauIndex = -1;
     let intervalId = setInterval(() => {
         for (let i = 0 ; i < tableau.length; i++) {
             stopLoop = false;
-            for (let j = 0; j < foundations.length; j++) {
-                const lastTCardIndex = tableau[i].length - 1;
-                const lastFCardIndex = foundations[j] ? foundations[j].length - 1 : 0;
-
-                if (tableau[i].length > 0 && tableau[i][lastTCardIndex].value === 1 && foundations[j].length === 0) {
-                    const cardToMove = tableauDisplay[i].children[lastTCardIndex];
-                    foundationsDisplay[j].appendChild(cardToMove);
-                    cardToMove.style.top = '0px';
-                    cardToMove.style.zIndex = foundationsDisplay[j].children.length;
-                    foundations[j].push(tableau[i].pop());
-                    stopLoop = true;
-                    score += 10;
-                    moves++;
-                    scoreDisplay.textContent = score;
-                    movesDisplay.textContent = moves;
-                    break;
-                } else if (
-                    tableau[i].length > 0 &&
-                    (tableau[i][lastTCardIndex].suit === foundations[j][lastFCardIndex].suit &&
-                    tableau[i][lastTCardIndex].value === foundations[j][lastFCardIndex].value + 1)
-                ) {
-                    const cardToMove = tableauDisplay[i].children[lastTCardIndex];
-                    foundationsDisplay[j].appendChild(cardToMove);
-                    cardToMove.style.top = '0px';
-                    cardToMove.style.zIndex = foundationsDisplay[j].children.length;
-                    foundations[j].push(tableau[i].pop());
-                    stopLoop = true;
-                    score += 10;
-                    moves++;
-                    scoreDisplay.textContent = score;
-                    movesDisplay.textContent = moves;
-                    break;
+            if (i == lastTableauIndex + 1 || (i == 0 && lastTableauIndex == tableau.length - 1) || lastTableauIndex == -1) {
+                for (let j = 0; j < foundations.length; j++) {
+                    const lastTCardIndex = tableau[i].length - 1;
+                    const lastFCardIndex = foundations[j].length - 1;
+    
+                    if (tableau[i].length > 0 && tableau[i][lastTCardIndex].value === 1 && foundations[j].length === 0) {
+                        const cardToMove = tableauDisplay[i].children[lastTCardIndex];
+                        foundationsDisplay[j].appendChild(cardToMove);
+                        cardToMove.style.top = '0px';
+                        cardToMove.style.zIndex = foundationsDisplay[j].children.length;
+                        foundations[j].push(tableau[i].pop());
+                        stopLoop = true;
+                        score += 10;
+                        moves++;
+                        scoreDisplay.textContent = score;
+                        movesDisplay.textContent = moves;
+                        break;
+                    } else if (
+                        tableau[i].length > 0 && foundations[j].length > 0 &&
+                        (tableau[i][lastTCardIndex].suit === foundations[j][lastFCardIndex].suit &&
+                        tableau[i][lastTCardIndex].value === foundations[j][lastFCardIndex].value + 1)
+                    ) {
+                        const cardToMove = tableauDisplay[i].children[lastTCardIndex];
+                        foundationsDisplay[j].appendChild(cardToMove);
+                        cardToMove.style.top = '0px';
+                        cardToMove.style.zIndex = foundationsDisplay[j].children.length;
+                        foundations[j].push(tableau[i].pop());
+                        stopLoop = true;
+                        score += 10;
+                        moves++;
+                        scoreDisplay.textContent = score;
+                        movesDisplay.textContent = moves;
+                        break;
+                    } 
                 }
+                lastTableauIndex = i;
             }
             if (stopLoop) break;
         }
