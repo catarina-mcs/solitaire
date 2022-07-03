@@ -143,7 +143,8 @@ function alignTableauCards(tableauPile) {
         card.style.zIndex = zIndex;
         card.style.top = `${top}px`;
         zIndex++;
-        top += 30;
+        if (!card.classList.contains('hidden')) top += 30
+        else top += 15;
     });
 
     if (tableauPileCards.length > longestPileLength && tableauPileCards.length > 5) {
