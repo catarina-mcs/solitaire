@@ -235,9 +235,6 @@ function moveCard(e) {
         if (e.target.classList.contains('card') && !e.target.classList.contains('hidden')) {
             selectedCardDisplay = e.target;
             selectedCardDisplay.classList.add('card-active');
-            undoOriginPileDisplay = originPileDisplay;
-            undoOriginArray = originArray;
-            undoCardIndex = cardIndex;
             originPileDisplay = e.target.parentNode;
             findSelectedCard();
             foundationsDisplay.forEach(pile => pile.style.cursor = 'pointer');
@@ -273,6 +270,9 @@ function moveCard(e) {
             lastMovedCard = selectedCardDisplay;
             selectedCardDisplay.classList.remove('card-active');
             selectedCardDisplay = null;
+            undoOriginPileDisplay = originPileDisplay;
+            undoOriginArray = originArray;
+            undoCardIndex = cardIndex;
             gameIsWon();
         } else if (e.target.classList.contains('card') && !e.target.classList.contains('hidden')) {
             selectedCardDisplay.classList.remove('card-active');
