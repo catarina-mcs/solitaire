@@ -59,14 +59,18 @@ body {
     width: 90px;
 }
 
+.buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
 .btn {
     font-weight: 500;
     font-size: 0.875rem;
     color: #f5f3eb;
     background-color: unset;
     border: unset;
-    margin-left: 0.5em;
-    padding: 1em 0.75em;
+    padding: 1em 1.1em;
     cursor: pointer;
     transition: background-color 200ms ease-in;
 }
@@ -185,21 +189,34 @@ body {
 
 @media screen and (max-width: 812px) {
     body {
-        min-width: 616px;
+        min-width: 550px;
     }
 
     .container {
-        width: 602px;
+        width: calc(84vw + 42px);
+        min-width: 532px;
+    }
+
+    .points, .moves {
+        width: 70px;
+    }
+
+    .btn {
+        padding: 1em 0.8em;
     }
 
     .game-area {
+        width: calc(84vw + 42px);
+        min-width: 532px;
         margin-left: 0.5em;
         margin-right: 0.5em;
         grid-column-gap: 0.5em;
     }
 
     .placeholder, .card {
-        max-width: 80px;
-        height: 120px;
+        width: 12vw;
+        min-width: 70px;
+        height: 18vw;
+        min-height: 105px;
     }
 }
