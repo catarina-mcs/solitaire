@@ -144,7 +144,7 @@ function alignTableauCards(tableauPile) {
         card.style.top = `${top}px`;
         zIndex++;
         if (!card.classList.contains('hidden')) top += 30
-        else top += 15;
+        else top += 20;
     });
 
     if (tableauPileCards.length > longestPileLength && tableauPileCards.length > 5) {
